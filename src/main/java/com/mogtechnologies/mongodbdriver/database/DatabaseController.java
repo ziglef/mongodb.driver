@@ -1,13 +1,51 @@
 package com.mogtechnologies.mongodbdriver.database;
 
-import javax.inject.Singleton;
+import com.mongodb.MongoClient;
+import com.mongodb.WriteConcern;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
 
 // Singleton Pattern Database Controller
 public class DatabaseController {
 
+    //////////////////////////////////////////////
+    //      DEFINITION AND INITIALIZATION       //
+    //////////////////////////////////////////////
+
+    private static String dbUrl;
+    private static Integer dbPort;
+    private static String dbName;
+    private static String dbUser;
+    private static String dbPassword;
+
+    private static MongoClient mongoClient;
+    private static MongoDatabase mongoDatabase;
+    /*
+    private static ArrayList<MongoCollection> mongoCollections;
+    private static final ArrayList<String> mongoCollectionsNames = new ArrayList<String>();
+    */
     // Constructor
     private DatabaseController() {
-        /* Do Stuff Here */
+        // Initialize DB connection
+        dbUrl = "localhost";
+        dbPort = 27017;
+        dbName = "mogDB";
+        dbUser = "";
+        dbPassword = "";
+
+        mongoClient = new MongoClient( dbUrl, dbPort );
+        mongoClient.setWriteConcern( WriteConcern.JOURNALED );
+        mongoDatabase = mongoClient.getDatabase( dbName );
+
+        /* Just here in case we need something similar
+
+        mongoCollections = new ArrayList<MongoCollection>( mongoCollectionsNames.size() );
+        for( String s : mongoCollectionsNames ){
+            mongoCollections.add( mongoDatabase.getCollection(s) );
+        }
+        */
     }
 
     // Access Point | Thread safe
@@ -18,5 +56,26 @@ public class DatabaseController {
     // Instance of the singleton
     private static class DatabaseControllerHolder{
         private static final DatabaseController INSTANCE = new DatabaseController();
+    }
+
+    //////////////////////////////
+    //      CLASS METHODS       //
+    //////////////////////////////
+
+    // GETTERS
+    public MongoClient getClient(){ return this.mongoClient; }
+    public MongoDatabase getDatabase(){ return this.mongoDatabase; }
+    public MongoCollection<Document> getCollection( String s ){ return this.mongoDatabase.getCollection(s); }
+
+    // ADDERS
+    public void addDocument(String collectionName, Document document){
+        mongoDatabase.getCollection(collectionName).insertOne(document);
+    }
+
+    // FINDERS (KEEPERS)
+    // Here we should let the user get the collection they want and query it
+    // I'll just leave this here if a future need rises
+    public FindIterable find(String collectionName, Document properties){
+        return mongoDatabase.getCollection(collectionName).find(properties);
     }
 }
