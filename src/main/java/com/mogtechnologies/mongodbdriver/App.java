@@ -5,6 +5,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
+import java.io.File;
+
 /*
  * Simple Jetty server
  */
@@ -26,6 +28,11 @@ public class App {
                 EntryPoint.class.getCanonicalName());
 
         try {
+            // Run the mongo server
+            // System.out.println("Working Directory = " + System.getProperty("user.dir"));
+            Runtime.getRuntime().exec("cmd /c startMongo.bat", null, new File("src/main/resources/sh/"));
+
+            // Run jetty server
             jettyServer.start();
             jettyServer.join();
         } catch (InterruptedException e) {
