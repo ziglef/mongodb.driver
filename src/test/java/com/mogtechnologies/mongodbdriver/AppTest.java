@@ -26,6 +26,8 @@ import java.net.URL;
 /**
  * Unit test for simple App.
  */
+// TODO: Structure this class.
+// TODO: Maybe split this class into multiple test cases
 public class AppTest extends TestCase {
     /**
      * Create the test case
@@ -48,6 +50,8 @@ public class AppTest extends TestCase {
     /**
      * Rigourous Test :-)
      */
+    // TODO: use fongo to test insertion and search
+    // TODO: use mockito to test RESTful API
     public void testApp() {
         /* INSERT AND SEARCH FONGO EXAMPLE
         // Create a new fongo instance (fake mongo)
@@ -70,9 +74,9 @@ public class AppTest extends TestCase {
 
             JsonParser jp = new JsonParser();
             JsonElement root = jp.parse(new InputStreamReader((InputStream) request.getContent()));
-            JsonObject rootobj = root.getAsJsonObject();
+            JsonObject rootObj = root.getAsJsonObject();
 
-            assertEquals(rootobj.get("id").getAsInt(), id);
+            assertEquals(rootObj.get("id").getAsInt(), id);
         } catch (MalformedURLException e) {
             System.out.println("Error building URL.");
             e.printStackTrace();
