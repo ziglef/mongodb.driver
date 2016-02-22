@@ -5,10 +5,7 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.util.JSON;
 import org.bson.*;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 /* CURRENTLY DOING:
@@ -32,6 +29,15 @@ public class EntryPoint {
                                     .find("objects", whereQuery);
 
         return JSON.serialize(cursor);
+    }
+
+    @POST
+    @Path("addobject")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public String putObject(TestObject to){
+        return "";
+        // DatabaseController.getInstance().addDocument("objects", to);
     }
 
 }
