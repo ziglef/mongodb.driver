@@ -1,8 +1,9 @@
 package com.mogtechnologies.mongodbdriver;
 
-import com.github.fakemongo.Fongo;
-import com.mongodb.*;
+import com.mogtechnologies.mongodbdriver.database.DatabaseController;
+import com.mongodb.client.FindIterable;
 import com.mongodb.util.JSON;
+import org.bson.*;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -10,23 +11,25 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+/* CURRENTLY DOING:
+    ->  Adapt entrypoint to use DatabaseController;
+    ->  Set path for POST requests to add documents
+*/
 
+// TODO: Add POST method to add objects to the database
 @Path("/object")
 public class EntryPoint {
-
-    Fongo fongo = new Fongo("Fongo Server");
-    DB db = fongo.getDB("testdb");
-    DBCollection dbCollection = db.getCollection("testCollection");
 
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public String getObject(@PathParam("id") String id){
-        dbCollection.insert(new BasicDBObject("id", "2"));
+        Document whereQuery = new Document();
+        whereQuery.put("id", new BsonString(id));
 
-        BasicDBObject whereQuery = new BasicDBObject();
-        whereQuery.put("id", id);
-        DBObject cursor = dbCollection.findOne(whereQuery);
+        FindIterable cursor = DatabaseController
+                                    .getInstance()
+                                    .find("objects", whereQuery);
 
         return JSON.serialize(cursor);
     }
