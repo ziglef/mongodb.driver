@@ -5,6 +5,7 @@ import com.mongodb.WriteConcern;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import org.bson.BsonString;
 import org.bson.Document;
 
 // Singleton Pattern Database Controller
@@ -38,6 +39,16 @@ public class DatabaseController {
         mongoClient = new MongoClient( dbUrl, dbPort );
         mongoClient.setWriteConcern( WriteConcern.JOURNALED );
         mongoDatabase = mongoClient.getDatabase( dbName );
+
+        // TODO: Remove initial drop and initialization.
+        mongoDatabase.drop();
+        if( mongoDatabase.getCollection("objects") == null ) mongoDatabase.createCollection("objects");
+
+        for(int i=0; i<10; i++) {
+            Document document = new Document();
+            document.put("id", new BsonString(String.valueOf(i)));
+            this.addDocument("objects", document);
+        }
 
         /* Just here in case we need something similar
 
