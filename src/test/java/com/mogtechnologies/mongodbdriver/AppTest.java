@@ -15,6 +15,12 @@ import com.github.fakemongo.Fongo;
 import com.mongodb.DB;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,6 +59,8 @@ public class AppTest extends TestCase {
     // TODO: use fongo to test insertion and search
     // TODO: use mockito to test RESTful API
     public void testApp() {
+        testEntryPoint();
+
         /* INSERT AND SEARCH FONGO EXAMPLE
         // Create a new fongo instance (fake mongo)
         Fongo fongo = new Fongo("Mongo Server | testApp");
@@ -64,7 +72,7 @@ public class AppTest extends TestCase {
 
         assertEquals(db.getCollection("testCollection").getCount(), 2);
         */
-
+        /*
         try {
             int id = 2;
             String urlString = "http://127.0.0.1:8080/object/" + id;
@@ -84,5 +92,36 @@ public class AppTest extends TestCase {
             System.out.println("Error opening connection to host.");
             e.printStackTrace();
         }
+        */
+    }
+
+    public void testEntryPoint() {
+        // Create a test for the GET method
+        int id = 2;
+        InputStream response = httpGet("http://127.0.0.1:8080/object/" + id);
+
+        if( response == null )
+            assertFalse(true);
+        else {
+            JsonParser jp = new JsonParser();
+            JsonElement root = jp.parse(new InputStreamReader(response));
+            JsonObject rootObj = root.getAsJsonObject();
+
+            assertEquals(rootObj.get("id").getAsInt(), id);
+        }
+        // Create a test for the POST method
+    }
+
+    private InputStream httpGet(String url) {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet(url);
+        try {
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+            return response.getEntity().getContent();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

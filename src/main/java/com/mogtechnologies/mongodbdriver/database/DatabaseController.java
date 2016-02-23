@@ -7,6 +7,8 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.BsonString;
 import org.bson.Document;
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Morphia;
 
 // Singleton Pattern Database Controller
 public class DatabaseController {
@@ -23,10 +25,13 @@ public class DatabaseController {
 
     private static MongoClient mongoClient;
     private static MongoDatabase mongoDatabase;
+    private static Morphia morphia;
+    private static Datastore datastore;
+
     /*
-    private static ArrayList<MongoCollection> mongoCollections;
-    private static final ArrayList<String> mongoCollectionsNames = new ArrayList<String>();
-    */
+        private static ArrayList<MongoCollection> mongoCollections;
+        private static final ArrayList<String> mongoCollectionsNames = new ArrayList<String>();
+        */
     // Constructor
     private DatabaseController() {
         // Initialize DB connection
@@ -39,6 +44,13 @@ public class DatabaseController {
         mongoClient = new MongoClient( dbUrl, dbPort );
         mongoClient.setWriteConcern( WriteConcern.JOURNALED );
         mongoDatabase = mongoClient.getDatabase( dbName );
+
+        // Start Morphia
+        // If in the future we need null or empty values we need to use MappingOptions
+        morphia = new Morphia();
+        morphia.mapPackage("com.mogtechnologies.mongodbdriver.database.models");
+        datastore = morphia.createDatastore(mongoClient, dbName);
+        datastore.ensureIndexes();
 
         // TODO: Remove initial drop and initialization.
         mongoDatabase.drop();
@@ -77,6 +89,8 @@ public class DatabaseController {
     public MongoClient getClient(){ return this.mongoClient; }
     public MongoDatabase getDatabase(){ return this.mongoDatabase; }
     public MongoCollection<Document> getCollection( String s ){ return this.mongoDatabase.getCollection(s); }
+    public Morphia getMorphia() { return morphia; }
+    public Datastore getDatastore() { return datastore; }
 
     // ADDERS
     public void addDocument(String collectionName, Document document){
@@ -88,5 +102,9 @@ public class DatabaseController {
     // I'll just leave this here if a future need rises
     public FindIterable find(String collectionName, Document properties){
         return mongoDatabase.getCollection(collectionName).find(properties);
+    }
+
+    public Document findOne(String collectionName, Document properties){
+        return mongoDatabase.getCollection(collectionName).find(properties).first();
     }
 }
