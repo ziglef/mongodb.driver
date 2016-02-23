@@ -18,6 +18,7 @@ public class App {
         Server jettyServer = new Server(8080);
         jettyServer.setHandler(contextHandler);
 
+        // Jersey servlet
         ServletHolder jerseyServlet = contextHandler.addServlet(
                 org.glassfish.jersey.servlet.ServletContainer.class, "/*");
         jerseyServlet.setInitOrder(0);
