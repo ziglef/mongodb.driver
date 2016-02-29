@@ -1,6 +1,7 @@
 package com.mogtechnologies.mongodbdriver;
 
 // Jetty
+import com.mogtechnologies.mongodbdriver.controllers.EntryPoint;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;

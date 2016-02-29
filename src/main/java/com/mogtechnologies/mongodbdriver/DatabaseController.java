@@ -1,10 +1,12 @@
-package com.mogtechnologies.mongodbdriver.database;
+package com.mogtechnologies.mongodbdriver;
 
+import com.mogtechnologies.mongodbdriver.models.SimpleDocument;
 import com.mongodb.MongoClient;
 import com.mongodb.WriteConcern;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.Document;
 import org.mongodb.morphia.Datastore;
@@ -50,18 +52,14 @@ public class DatabaseController {
         morphia = new Morphia();
         morphia.mapPackage("com.mogtechnologies.mongodbdriver.database.models");
         datastore = morphia.createDatastore(mongoClient, dbName);
-        datastore.ensureIndexes();
 
-        // TODO: Remove initial drop and initialization.
+        // TODO: Remove initial drop
         mongoDatabase.drop();
-        if( mongoDatabase.getCollection("objects") == null ) mongoDatabase.createCollection("objects");
+        if( mongoDatabase.getCollection("simpledocuments") == null ) mongoDatabase.createCollection("simpledocuments");
 
-        for(int i=0; i<10; i++) {
-            Document document = new Document();
-            document.put("id", new BsonString(String.valueOf(i)));
-            this.addDocument("objects", document);
-        }
 
+        // Create all indexes annotated by morphia
+        datastore.ensureIndexes();
         /* Just here in case we need something similar
 
         mongoCollections = new ArrayList<MongoCollection>( mongoCollectionsNames.size() );
