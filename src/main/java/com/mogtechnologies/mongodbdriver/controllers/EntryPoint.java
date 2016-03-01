@@ -23,7 +23,7 @@ public class EntryPoint {
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public String getObject(@PathParam("id") String id){
+    public Response getObject(@PathParam("id") String id){
         Document whereQuery = new Document();
         whereQuery.put("id", new BsonInt32(Integer.valueOf(id)));
 
@@ -31,7 +31,10 @@ public class EntryPoint {
                                     .getInstance()
                                     .findOne("simpledocuments", whereQuery);
 
-        return JSON.serialize(document);
+        if( document != null )
+            return Response.status(Response.Status.OK).entity(JSON.serialize(document)).build();
+        else
+            return HttpResponseHandling.handleException(new NullPointerException());
     }
 
     @POST
@@ -43,6 +46,7 @@ public class EntryPoint {
             SimpleDocument sd = new SimpleDocument(jsonObject);
 
             if( sd.getId() == null ) {
+                // Calling garbage collector
                 sd = null;
                 throw new MappingException("Error mapping json to simpleDocument");
             } else
