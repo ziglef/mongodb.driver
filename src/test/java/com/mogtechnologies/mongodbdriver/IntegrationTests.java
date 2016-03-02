@@ -14,7 +14,9 @@ import static com.mogtechnologies.mongodbdriver.Utils.httpGet;
 public class IntegrationTests {
 
     public IntegrationTests() {
-
+        // Startup our application
+        // Add some documents to the database
+        // Run the tests
     }
 
     @Test
