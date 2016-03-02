@@ -1,5 +1,7 @@
 package com.mogtechnologies.mongodbdriver;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -25,6 +27,14 @@ public class Utils {
         basicDBObject.put("id", 0);
 
         return basicDBObject;
+    }
+
+    // TODO: Create the body of the method
+    public static ObjectNode createBasicJsonObject() {
+        ObjectNode node = JsonNodeFactory.instance.objectNode();
+        node.put("text", "sample text");
+        node.put("title", "sample title");
+        return node;
     }
 
     public static void clearCollection(DBCollection testCollection) {
