@@ -12,11 +12,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-/* CURRENTLY DOING:
-    ->  Adapt entrypoint to use DatabaseController;
-    ->  Set path for POST requests to add documents
-*/
-
 @Path("/object")
 public class EntryPoint {
 

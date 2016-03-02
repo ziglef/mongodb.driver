@@ -28,7 +28,7 @@ public class Utils {
 
         return basicDBObject;
     }
-    
+
     public static ObjectNode createBasicJsonObject() {
         ObjectNode node = JsonNodeFactory.instance.objectNode();
         node.put("text", "sample text");
