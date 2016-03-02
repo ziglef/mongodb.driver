@@ -54,7 +54,7 @@ public class IntegrationTests {
     // GET Object | /object/{id}
     public void testGetObject() {
         int id = 0;
-        CloseableHttpResponse response = httpGet("http://127.0.0.1:8080/object/" + id);
+        CloseableHttpResponse response = httpGet("http://127.0.0.1:8081/object/" + id);
 
         if( response == null )
             Assert.assertFalse(true);
@@ -75,7 +75,7 @@ public class IntegrationTests {
     // POST Object | /object/addobject
     public void testPostObject() {
         ObjectNode jsonObject = createBasicJsonObject();
-        CloseableHttpResponse response = httpPost("http://127.0.0.1:8080/object/addobject", jsonObject);
+        CloseableHttpResponse response = httpPost("http://127.0.0.1:8081/object/addobject", jsonObject);
 
         if( response == null )
             Assert.assertFalse(true);

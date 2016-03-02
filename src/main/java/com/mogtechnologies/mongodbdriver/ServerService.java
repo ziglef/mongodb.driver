@@ -13,7 +13,7 @@ public class ServerService implements Runnable {
         ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
         contextHandler.setContextPath("/");
 
-        Server jettyServer = new Server(8080);
+        Server jettyServer = new Server(8081);
         jettyServer.setHandler(contextHandler);
 
         // Jersey servlet
