@@ -29,7 +29,7 @@ public class EntryPoint {
         if( document != null )
             return Response.status(Response.Status.OK).entity(JSON.serialize(document)).build();
         else
-            return HttpResponseHandling.handleException(new NullPointerException());
+            return HttpResponseHandling.handleException(new NotFoundException());
     }
 
     @POST
@@ -49,8 +49,14 @@ public class EntryPoint {
         } catch (Exception e){
             return HttpResponseHandling.handleException(e);
         }
+        Document whereQuery = new Document();
+        whereQuery.put("id", new BsonInt32(0));
 
-        return HttpResponseHandling.handleSuccess("201", "The document was successfully created.");
+        Document document = DatabaseController
+                .getInstance()
+                .findOne("simpledocuments", whereQuery);
+        return Response.status(Response.Status.OK).entity(JSON.serialize(document)).build();
+        //        return HttpResponseHandling.handleSuccess("201", "The document was successfully created.");
     }
 
 }

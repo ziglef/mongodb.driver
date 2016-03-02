@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mongodb.morphia.mapping.MappingException;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 
 import static com.mogtechnologies.mongodbdriver.Utils.createBasicDBObject;
@@ -32,7 +33,7 @@ public class RestApiTests {
 
         when(entryPointMock.getObject("-1"))
                 .thenReturn(HttpResponseHandling
-                        .handleException(new NullPointerException()));
+                        .handleException(new NotFoundException()));
 
 
         // putObject(JsonNode jsonObject)
@@ -63,7 +64,7 @@ public class RestApiTests {
 
         // .toString() was needed to trim garbage
         Assert.assertEquals(HttpResponseHandling
-                                .handleException(new NullPointerException()).toString(),
+                                .handleException(new NotFoundException()).toString(),
                             entryPointMock.getObject("-1").toString());
     }
 

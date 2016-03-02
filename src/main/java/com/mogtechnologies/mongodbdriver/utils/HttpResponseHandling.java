@@ -4,13 +4,20 @@ import com.mongodb.util.JSON;
 import org.mongodb.morphia.mapping.MappingException;
 import org.mongodb.morphia.query.UpdateException;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
 
 public class HttpResponseHandling {
     public static Response handleException(Exception e) {
-        if (e.getClass() == UpdateException.class) {
+        if (e.getClass() == NotFoundException.class) {
+            Map<String, String> messageFields = new HashMap<String, String>();
+            messageFields.put("404", "Not Found");
+            messageFields.put("Status Code", "404");
+            messageFields.put("ExtraInfo", "The document couldn't be found.");
+            return Response.status(Response.Status.NOT_FOUND).entity(JSON.serialize(messageFields)).build();
+        } else if (e.getClass() == UpdateException.class) {
             Map<String, String> messageFields = new HashMap<String, String>();
             messageFields.put("400", "Bad Request");
             messageFields.put("Status Code", "400");

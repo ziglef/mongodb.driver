@@ -84,9 +84,9 @@ public class DatabaseController {
     //////////////////////////////
 
     // GETTERS
-    public MongoClient getClient(){ return this.mongoClient; }
-    public MongoDatabase getDatabase(){ return this.mongoDatabase; }
-    public MongoCollection<Document> getCollection( String s ){ return this.mongoDatabase.getCollection(s); }
+    public MongoClient getClient(){ return mongoClient; }
+    public MongoDatabase getDatabase(){ return mongoDatabase; }
+    public MongoCollection<Document> getCollection( String s ){ return mongoDatabase.getCollection(s); }
     public Morphia getMorphia() { return morphia; }
     public Datastore getDatastore() { return datastore; }
 
