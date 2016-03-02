@@ -16,7 +16,6 @@ import static com.mogtechnologies.mongodbdriver.Utils.createBasicJsonObject;
 import static org.mockito.Mockito.when;
 
 
-// TODO: Reorder node creation
 public class RestApiTests {
 
     EntryPoint entryPointMock;
