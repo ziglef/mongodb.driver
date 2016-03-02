@@ -9,4 +9,6 @@ import org.junit.runners.Suite;
         RestApiTests.class,
         IntegrationTests.class
 })
-public class AllTest {}
+public class AllTest {
+
+}

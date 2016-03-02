@@ -6,9 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mogtechnologies.mongodbdriver.models.SimpleDocument;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.*;
 import org.mongodb.morphia.mapping.MappingException;
 
 import java.io.IOException;
@@ -20,21 +18,24 @@ import static com.mogtechnologies.mongodbdriver.Utils.httpPost;
 
 public class IntegrationTests {
 
-    Thread thread;
+    public static Thread thread;
 
-    public IntegrationTests() {
+    @BeforeClass
+    public static void setUp(){
         // Startup our application
         thread = new Thread(new ServerService());
         thread.start();
         // Add some documents to the database
         while( !thread.isAlive() ) {
             try {
-                wait(100);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+    }
 
+    public IntegrationTests() {
         // Insert 10 documents on the database
         for (int i = 0; i < 10; i++) {
             ObjectNode jsonObject = createBasicJsonObject();
@@ -83,8 +84,8 @@ public class IntegrationTests {
         }
     }
 
-    @After
-    public void tearDown(){
-        this.thread.stop();
+    @AfterClass
+    public static void tearDown(){
+        thread.interrupt();
     }
 }
