@@ -85,6 +85,6 @@ public class IntegrationTests {
 
     @After
     public void tearDown(){
-        this.thread.interrupt();
+        this.thread.stop();
     }
 }
