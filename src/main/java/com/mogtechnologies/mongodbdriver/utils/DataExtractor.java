@@ -1,5 +1,6 @@
 package com.mogtechnologies.mongodbdriver.utils;
 
+import com.mogtechnologies.mongodbdriver.DatabaseController;
 import com.mongodb.CursorType;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -12,8 +13,8 @@ import org.bson.conversions.Bson;
 import java.util.ArrayList;
 import java.util.Map;
 
-// MongoDataExtractor
-public class MongoDataExtractor implements Runnable{
+// DataExtractor
+public class DataExtractor implements Runnable{
 
     //////////////////////////////////////////////
     //      DEFINITION AND INITIALIZATION       //
@@ -25,8 +26,8 @@ public class MongoDataExtractor implements Runnable{
     ArrayList<ArrayList<ArrayList<String>>> dataParameters;
 
     // Constructor
-    public MongoDataExtractor(ArrayList<String> dataNames,
-                              ArrayList<ArrayList<ArrayList<String>>> dataParameters) {
+    public DataExtractor(ArrayList<String> dataNames,
+                         ArrayList<ArrayList<ArrayList<String>>> dataParameters) {
         // Initialize DB connection
         String dbUrl = "192.168.1.131";
         int dbPort = 27017;
@@ -35,28 +36,15 @@ public class MongoDataExtractor implements Runnable{
         MongoClient mongoClient = new MongoClient(dbUrl, dbPort);
         this.mongoDatabase = mongoClient.getDatabase( dbName );
         this.collection = mongoDatabase.getCollection("InfoLog_cap");
-        this.dataNames = dataNames;
-        this.dataParameters = dataParameters;
+        this.dataNames = new ArrayList<String>(dataNames);
+        this.dataParameters = new ArrayList<ArrayList<ArrayList<String>>>(dataParameters);
     }
 
     public void run() {
-/*
-        ArrayList<String> fieldNames = new ArrayList<String>();
-        int curr = 0;
-
-        for( ArrayList<String> fieldString : this.dataNames ){
-            fieldNames.add(curr, collectionName);
-            String tmpString = "";
-            for( String s : fieldString ){
-                tmpString = tmpString.concat(s);
-            }
-            tmpString = fieldNames.get(curr).concat(tmpString);
-            fieldNames.set(curr, tmpString);
-            curr++;
-        }
-*/
         Bson fieldsToScan = Projections.include(dataNames);
-        // Bson fieldsToScan = Projections.include("Assets.Document.Metadata.Metadata.CustomMetadata");
+
+        System.out.println("\n\n\n" + dataNames.toString() + "\n\n\n");
+
         MongoCursor<Document> cursor = collection
                                             .find()
                                             .projection(fieldsToScan)
@@ -70,6 +58,9 @@ public class MongoDataExtractor implements Runnable{
                     int currData = 0;
 
                     BsonDocument doc = BsonDocument.parse(cursor.next().toJson());
+                    BsonDocument finalDoc = new BsonDocument();
+
+                    // DEBUG //
                     System.out.println("\nOriginal Document: " + doc);
                     System.out.println("What we should see: " +
                             doc
@@ -78,28 +69,56 @@ public class MongoDataExtractor implements Runnable{
                                     .getArray("Metadata").get(0).asDocument()
                                     .getDocument("Metadata")
                                     .getArray("CustomMetadata").toString());
+                    // DEBUG //
+
                     for( String dataName : dataNames ){
+
                         BsonDocument obtainedDoc = doc;
                         String[] fieldNames = dataName.split("[.]");
                         ArrayList<ArrayList<String>> documentParameters = dataParameters.get(currData);
 
+                        // DEBUG //
+                        System.out.println("Trying to find: " + dataName);
+                        // DEBUG //
+
                         for( String fieldName : fieldNames ){
+
                             ArrayList<String> fieldParameters = documentParameters.get(currField);
                             if( fieldParameters.get(0).equals("Document") ) {
+
+                                // DEBUG //
                                 System.out.println("Getting " + fieldName + " as a Document.");
-                                obtainedDoc = obtainedDoc
-                                        .getDocument(fieldName);
+                                // DEBUG //
+
+                                try {
+                                    obtainedDoc = obtainedDoc
+                                            .getDocument(fieldName);
+                                } catch (Exception e){
+                                    obtainedDoc = null;
+                                    break;
+                                }
+
                             } else if( fieldParameters.get(0).equals("Array") ) {
+
                                 if( fieldParameters.get(1).equals("all") ) {
+
+                                    // DEBUG //
                                     System.out.println("Getting " + fieldName + " as an Array, as a Document.");
+                                    // DEBUG //
+
                                     BsonDocument tmpDoc = new BsonDocument();
                                     for( BsonValue be : obtainedDoc.getArray(fieldName) ){
+
                                         BsonDocument bd = (BsonDocument)be;
 
                                         BsonString tmpKey = new BsonString("");
                                         boolean indexHack = true;
+
                                         for( Map.Entry<String, BsonValue> bv : bd.entrySet() ){
+
+                                            // DEBUG //
                                             System.out.println("BV: " + bv.getValue());
+                                            // DEBUG //
 
                                             if( indexHack ) {
                                                 tmpKey = bv.getValue().asString();
@@ -110,19 +129,35 @@ public class MongoDataExtractor implements Runnable{
                                             }
                                         }
                                     }
-                                    obtainedDoc = tmpDoc;
-                                    /*
+
+                                    if( tmpDoc != null )
+                                        obtainedDoc = tmpDoc;
+                                    else
+                                        obtainedDoc = null;
+
+                                } else if(fieldParameters.get(1).equals("last")) {
+
+                                    // DEBUG //
+                                    System.out.println("Getting " + fieldName + " as an Array, with field " + (obtainedDoc.getArray(fieldName).size()-1) + " as a Document.");
+                                    // DEBUG //
+
                                     obtainedDoc = obtainedDoc
                                             .getArray(fieldName)
+                                            .get(obtainedDoc.getArray(fieldName).size()-1)
                                             .asDocument();
-                                    */
+
                                 } else if( Integer.valueOf(fieldParameters.get(1)) != null ) {
+
+                                    // DEBUG //
                                     System.out.println("Getting " + fieldName + " as an Array, with field " + Integer.valueOf(fieldParameters.get(1)) + " as a Document.");
+                                    // DEBUG //
+
                                     obtainedDoc = obtainedDoc
                                             .getArray(fieldName)
                                             .get(Integer.valueOf(fieldParameters.get(1)))
                                             .asDocument();
                                 }
+
                             } else
                                 break;
 
@@ -132,7 +167,16 @@ public class MongoDataExtractor implements Runnable{
 
                         currField = 0;
                         currData++;
+
+                        if( obtainedDoc != null ) {
+                            BsonDocument tempDoc = new BsonDocument();
+                            tempDoc.append(fieldNames[fieldNames.length - 1], obtainedDoc);
+                            finalDoc.putAll(tempDoc);
+                        }
                     }
+
+                    System.out.println("Final Document: " + finalDoc);
+                    DatabaseController.getInstance().getCollection("log", BsonDocument.class).insertOne(finalDoc);
 
                 } catch (NullPointerException e) {
                     // System.out.println("This Document is not an Asset");
@@ -156,10 +200,3 @@ public class MongoDataExtractor implements Runnable{
     }
 
 }
-
-/*
-Support
-"String" "Array" "String" "String"
-
-["Document"] ["Metadata", 0]
- */

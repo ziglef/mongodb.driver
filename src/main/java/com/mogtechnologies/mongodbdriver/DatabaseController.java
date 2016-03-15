@@ -5,6 +5,7 @@ import com.mongodb.WriteConcern;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import org.bson.BsonDocument;
 import org.bson.Document;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
@@ -34,7 +35,7 @@ public class DatabaseController {
     // Constructor
     private DatabaseController() {
         // Initialize DB connection
-        dbUrl = "localhost";
+        dbUrl = "192.168.1.131";
         dbPort = 27017;
         dbName = "mogDB";
         dbUser = "";
@@ -84,6 +85,9 @@ public class DatabaseController {
     public MongoClient getClient(){ return mongoClient; }
     public MongoDatabase getDatabase(){ return mongoDatabase; }
     public MongoCollection<Document> getCollection( String s ){ return mongoDatabase.getCollection(s); }
+    public MongoCollection getCollection(String s, Class classInfo) {
+        return mongoDatabase.getCollection(s, classInfo);
+    }
     public Morphia getMorphia() { return morphia; }
     public Datastore getDatastore() { return datastore; }
 
