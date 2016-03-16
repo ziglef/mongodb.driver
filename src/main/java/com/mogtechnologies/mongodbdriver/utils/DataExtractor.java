@@ -20,10 +20,11 @@ public class DataExtractor implements Runnable{
     //      DEFINITION AND INITIALIZATION       //
     //////////////////////////////////////////////
 
-    MongoDatabase mongoDatabase;
-    MongoCollection<Document> collection;
-    ArrayList<String> dataNames;
-    ArrayList<ArrayList<ArrayList<String>>> dataParameters;
+    private MongoDatabase mongoDatabase;
+    private MongoCollection<Document> collection;
+    private ArrayList<String> dataNames;
+    private ArrayList<ArrayList<ArrayList<String>>> dataParameters;
+    private long id;
 
     // Constructor
     public DataExtractor(ArrayList<String> dataNames,
@@ -38,6 +39,7 @@ public class DataExtractor implements Runnable{
         this.collection = mongoDatabase.getCollection("InfoLog_cap");
         this.dataNames = new ArrayList<String>(dataNames);
         this.dataParameters = new ArrayList<ArrayList<ArrayList<String>>>(dataParameters);
+        this.id = 0;
     }
 
     public void run() {
@@ -176,6 +178,8 @@ public class DataExtractor implements Runnable{
                     }
 
                     System.out.println("Final Document: " + finalDoc);
+                    finalDoc.put("id", new BsonInt64(this.id));
+                    this.id++;
                     DatabaseController.getInstance().getCollection("log", BsonDocument.class).insertOne(finalDoc);
 
                 } catch (NullPointerException e) {
