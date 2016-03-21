@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mogtechnologies.mongodbdriver.controllers.DatabaseController;
 import com.mogtechnologies.mongodbdriver.models.SimpleDocument;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.junit.*;
@@ -23,7 +24,7 @@ public class IntegrationTests {
     @BeforeClass
     public static void setUp(){
         // Startup our application
-        thread = new Thread(new ServerService());
+        thread = new Thread(new DatabaseApiServer());
         thread.start();
         // Add some documents to the database
         while( !thread.isAlive() ) {
@@ -54,7 +55,7 @@ public class IntegrationTests {
     // GET Object | /object/{id}
     public void testGetObject() {
         int id = 0;
-        CloseableHttpResponse response = httpGet("http://127.0.0.1:8081/object/" + id);
+        CloseableHttpResponse response = httpGet("http://127.0.0.1:8081/jersey/object/" + id);
 
         if( response == null )
             Assert.assertFalse(true);
@@ -75,7 +76,7 @@ public class IntegrationTests {
     // POST Object | /object/addobject
     public void testPostObject() {
         ObjectNode jsonObject = createBasicJsonObject();
-        CloseableHttpResponse response = httpPost("http://127.0.0.1:8081/object/addobject", jsonObject);
+        CloseableHttpResponse response = httpPost("http://127.0.0.1:8081/jersey/object/addobject", jsonObject);
 
         if( response == null )
             Assert.assertFalse(true);

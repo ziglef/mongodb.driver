@@ -1,6 +1,6 @@
 package com.mogtechnologies.mongodbdriver.utils;
 
-import com.mogtechnologies.mongodbdriver.DatabaseController;
+import com.mogtechnologies.mongodbdriver.controllers.DatabaseController;
 import com.mongodb.CursorType;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;

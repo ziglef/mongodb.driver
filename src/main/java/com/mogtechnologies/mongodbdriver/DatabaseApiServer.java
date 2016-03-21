@@ -2,29 +2,26 @@ package com.mogtechnologies.mongodbdriver;
 
 import com.mogtechnologies.mongodbdriver.controllers.EntryPoint;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import java.io.File;
 
 // TODO: Should make this singleton
-public class ServerService implements Runnable {
+public class DatabaseApiServer implements Runnable {
     public void run() {
-        ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        contextHandler.setContextPath("/");
-
         Server jettyServer = new Server(8081);
-        jettyServer.setHandler(contextHandler);
+
+        ContextHandlerCollection handlers = new ContextHandlerCollection();
+        jettyServer.setHandler(handlers);
+
+        ServletContextHandler app = new ServletContextHandler(handlers, "/", ServletContextHandler.SESSIONS);
 
         // Jersey servlet
-        ServletHolder jerseyServlet = contextHandler.addServlet(
-                org.glassfish.jersey.servlet.ServletContainer.class, "/*");
-        jerseyServlet.setInitOrder(0);
-
-        // Tell the Jersey servlet what class/service to use as entry point
-        jerseyServlet.setInitParameter(
-                "jersey.config.server.provider.classnames",
-                EntryPoint.class.getCanonicalName());
+        ServletHolder jerseyServlet = new ServletHolder(org.glassfish.jersey.servlet.ServletContainer.class);
+        jerseyServlet.setInitParameter("jersey.config.server.provider.classnames", EntryPoint.class.getCanonicalName());
+        app.addServlet(jerseyServlet, "/jersey/*");
 
         try {
             // Run the mongo server
@@ -33,6 +30,7 @@ public class ServerService implements Runnable {
 
             // Run jetty server
             jettyServer.start();
+            // jettyServer.dump(System.err);
             jettyServer.join();
         } catch (InterruptedException e) {
             System.out.println("InterruptedException while starting jetty server.\n" + e.getMessage());

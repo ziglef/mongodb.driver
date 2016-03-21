@@ -1,7 +1,6 @@
 package com.mogtechnologies.mongodbdriver.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mogtechnologies.mongodbdriver.DatabaseController;
 import com.mogtechnologies.mongodbdriver.models.SimpleDocument;
 import com.mogtechnologies.mongodbdriver.utils.HttpResponseHandling;
 import com.mongodb.util.JSON;

@@ -2,7 +2,7 @@ package com.mogtechnologies.mongodbdriver.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mogtechnologies.mongodbdriver.DatabaseController;
+import com.mogtechnologies.mongodbdriver.controllers.DatabaseController;
 import com.mongodb.client.FindIterable;
 import org.bson.Document;
 import org.bson.types.ObjectId;

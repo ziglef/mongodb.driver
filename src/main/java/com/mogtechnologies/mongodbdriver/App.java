@@ -6,8 +6,11 @@ import com.mogtechnologies.mongodbdriver.utils.DataExtractorBuilder;
 
 public class App {
     public static void main( String[] args ) {
-        Thread server = new Thread(new ServerService());
-        server.start();
+        Thread databaseApiServer = new Thread(new DatabaseApiServer());
+        databaseApiServer.start();
+
+        Thread websocketsServer = new Thread(new WebSocketsServer());
+        websocketsServer.start();
 
         String customMetadata = "Assets.Document.Metadata.Metadata.CustomMetadata";
         String duration = "Assets.Document.Metadata.Metadata.Duration";
