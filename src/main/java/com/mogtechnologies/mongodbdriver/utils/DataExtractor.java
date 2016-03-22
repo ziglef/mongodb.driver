@@ -10,6 +10,8 @@ import com.mongodb.client.model.Projections;
 import org.bson.*;
 import org.bson.conversions.Bson;
 
+import javax.websocket.Session;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -26,9 +28,11 @@ public class DataExtractor implements Runnable{
     private ArrayList<ArrayList<ArrayList<String>>> dataParameters;
     private long id;
 
+    private Session session;
+
     // Constructor
     public DataExtractor(ArrayList<String> dataNames,
-                         ArrayList<ArrayList<ArrayList<String>>> dataParameters) {
+                         ArrayList<ArrayList<ArrayList<String>>> dataParameters, Session session) {
         // Initialize DB connection
         String dbUrl = "192.168.1.131";
         int dbPort = 27017;
@@ -40,6 +44,8 @@ public class DataExtractor implements Runnable{
         this.dataNames = new ArrayList<String>(dataNames);
         this.dataParameters = new ArrayList<ArrayList<ArrayList<String>>>(dataParameters);
         this.id = 0;
+
+        this.session = session;
     }
 
     public void run() {
@@ -180,7 +186,14 @@ public class DataExtractor implements Runnable{
                     System.out.println("Final Document: " + finalDoc);
                     finalDoc.put("id", new BsonInt64(this.id));
                     this.id++;
-                    DatabaseController.getInstance().getCollection("log", BsonDocument.class).insertOne(finalDoc);
+
+                    // Send document to the websocket
+                    try {
+                        session.getBasicRemote().sendText(finalDoc.toJson());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    // (OLD CODE) DatabaseController.getInstance().getCollection("log", BsonDocument.class).insertOne(finalDoc);
 
                 } catch (NullPointerException e) {
                     // System.out.println("This Document is not an Asset");

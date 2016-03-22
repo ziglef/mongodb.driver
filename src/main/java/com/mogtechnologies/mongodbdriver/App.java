@@ -1,8 +1,5 @@
 package com.mogtechnologies.mongodbdriver;
 
-import com.mogtechnologies.mongodbdriver.utils.DataExtractor;
-import com.mogtechnologies.mongodbdriver.utils.DataExtractorBuilder;
-
 
 public class App {
     public static void main( String[] args ) {
@@ -11,7 +8,7 @@ public class App {
 
         Thread websocketsServer = new Thread(new WebSocketsServer());
         websocketsServer.start();
-
+/*
         String customMetadata = "Assets.Document.Metadata.Metadata.CustomMetadata";
         String duration = "Assets.Document.Metadata.Metadata.Duration";
 
@@ -33,5 +30,6 @@ public class App {
 
         Thread dataExtractor = new Thread(new DataExtractor(deb.getFieldNames(), deb.getDataParams()));
         dataExtractor.start();
+*/
     }
 }
