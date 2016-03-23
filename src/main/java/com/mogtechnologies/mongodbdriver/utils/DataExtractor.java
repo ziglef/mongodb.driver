@@ -28,7 +28,7 @@ public class DataExtractor implements Runnable{
     private ArrayList<ArrayList<ArrayList<String>>> dataParameters;
     private long id;
 
-    private Session session;
+    private Session session = null;
 
     // Constructor
     public DataExtractor(ArrayList<String> dataNames,
@@ -46,6 +46,21 @@ public class DataExtractor implements Runnable{
         this.id = 0;
 
         this.session = session;
+    }
+
+    public DataExtractor(ArrayList<String> dataNames,
+                         ArrayList<ArrayList<ArrayList<String>>> dataParameters) {
+        // Initialize DB connection
+        String dbUrl = "192.168.1.131";
+        int dbPort = 27017;
+        String dbName = "LogData";
+
+        MongoClient mongoClient = new MongoClient(dbUrl, dbPort);
+        this.mongoDatabase = mongoClient.getDatabase(dbName);
+        this.collection = mongoDatabase.getCollection("InfoLog_cap");
+        this.dataNames = new ArrayList<String>(dataNames);
+        this.dataParameters = new ArrayList<ArrayList<ArrayList<String>>>(dataParameters);
+        this.id = 0;
     }
 
     public void run() {
@@ -187,13 +202,16 @@ public class DataExtractor implements Runnable{
                     finalDoc.put("id", new BsonInt64(this.id));
                     this.id++;
 
-                    // Send document to the websocket
-                    try {
-                        session.getBasicRemote().sendText(finalDoc.toJson());
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    if( session == null ) {
+                        DatabaseController.getInstance().getCollection("log", BsonDocument.class).insertOne(finalDoc);
+                    } else {
+                        // Send document to the websocket
+                        try {
+                            session.getBasicRemote().sendText(finalDoc.toJson());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
-                    // (OLD CODE) DatabaseController.getInstance().getCollection("log", BsonDocument.class).insertOne(finalDoc);
 
                 } catch (NullPointerException e) {
                     // System.out.println("This Document is not an Asset");

@@ -54,7 +54,6 @@ public class DatabaseController {
         mongoDatabase.drop();
         if( mongoDatabase.getCollection("simpledocuments") == null ) mongoDatabase.createCollection("simpledocuments");
 
-
         // Create all indexes annotated by morphia
         datastore.ensureIndexes();
         /* Just here in case we need something similar
