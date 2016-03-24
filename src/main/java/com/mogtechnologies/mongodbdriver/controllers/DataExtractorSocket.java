@@ -65,6 +65,10 @@ public class DataExtractorSocket {
             dataExtractorThread = new Thread(new DataExtractor(deb.getFieldNames(), deb.getDataParams(), this.session));
             dataExtractorThread.start();
         }
+
+        if( json.get("action").getAsString().equals("stayalive") ){
+            session.getBasicRemote().sendText("{action:'stayalive'}");
+        }
     }
 
     @OnClose
@@ -79,6 +83,14 @@ public class DataExtractorSocket {
     @OnError
     public void onWebSocketError(Throwable cause)
     {
+        try {
+            this.session.close(new CloseReason(CloseReason.CloseCodes.GOING_AWAY, "Error handling message. Closing socket."));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        this.session = null;
+        this.dataExtractorThread.interrupt();
+        this.dataExtractorThread = null;
         cause.printStackTrace(System.err);
     }
 }

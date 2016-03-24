@@ -69,13 +69,13 @@ public class DataExtractor implements Runnable{
         System.out.println("\n\n\n" + dataNames.toString() + "\n\n\n");
 
         MongoCursor<Document> cursor = collection
-                                            .find()
-                                            .projection(fieldsToScan)
-                                            .cursorType(CursorType.TailableAwait)
-                                            .iterator();
+                .find()
+                .projection(fieldsToScan)
+                .cursorType(CursorType.TailableAwait)
+                .iterator();
 
         while(true){
-            while(cursor.hasNext()){
+            while (!Thread.interrupted() && cursor.hasNext()) {
                 try {
                     int currField = 0;
                     int currData = 0;
@@ -94,9 +94,10 @@ public class DataExtractor implements Runnable{
                                     .getArray("CustomMetadata").toString());
                     // DEBUG //
 
-                    for( String dataName : dataNames ){
+                    for (String dataName : dataNames) {
 
                         BsonDocument obtainedDoc = doc;
+                        BsonValue obtainedField = null;
                         String[] fieldNames = dataName.split("[.]");
                         ArrayList<ArrayList<String>> documentParameters = dataParameters.get(currData);
 
@@ -104,10 +105,10 @@ public class DataExtractor implements Runnable{
                         System.out.println("Trying to find: " + dataName);
                         // DEBUG //
 
-                        for( String fieldName : fieldNames ){
+                        for (String fieldName : fieldNames) {
 
                             ArrayList<String> fieldParameters = documentParameters.get(currField);
-                            if( fieldParameters.get(0).equals("Document") ) {
+                            if (fieldParameters.get(0).equals("Document")) {
 
                                 // DEBUG //
                                 System.out.println("Getting " + fieldName + " as a Document.");
@@ -116,34 +117,34 @@ public class DataExtractor implements Runnable{
                                 try {
                                     obtainedDoc = obtainedDoc
                                             .getDocument(fieldName);
-                                } catch (Exception e){
+                                } catch (Exception e) {
                                     obtainedDoc = null;
                                     break;
                                 }
 
-                            } else if( fieldParameters.get(0).equals("Array") ) {
+                            } else if (fieldParameters.get(0).equals("Array")) {
 
-                                if( fieldParameters.get(1).equals("all") ) {
+                                if (fieldParameters.get(1).equals("all")) {
 
                                     // DEBUG //
                                     System.out.println("Getting " + fieldName + " as an Array, as a Document.");
                                     // DEBUG //
 
                                     BsonDocument tmpDoc = new BsonDocument();
-                                    for( BsonValue be : obtainedDoc.getArray(fieldName) ){
+                                    for (BsonValue be : obtainedDoc.getArray(fieldName)) {
 
-                                        BsonDocument bd = (BsonDocument)be;
+                                        BsonDocument bd = (BsonDocument) be;
 
                                         BsonString tmpKey = new BsonString("");
                                         boolean indexHack = true;
 
-                                        for( Map.Entry<String, BsonValue> bv : bd.entrySet() ){
+                                        for (Map.Entry<String, BsonValue> bv : bd.entrySet()) {
 
                                             // DEBUG //
                                             System.out.println("BV: " + bv.getValue());
                                             // DEBUG //
 
-                                            if( indexHack ) {
+                                            if (indexHack) {
                                                 tmpKey = bv.getValue().asString();
                                                 indexHack = !indexHack;
                                             } else {
@@ -153,23 +154,23 @@ public class DataExtractor implements Runnable{
                                         }
                                     }
 
-                                    if( tmpDoc != null )
+                                    if (tmpDoc != null)
                                         obtainedDoc = tmpDoc;
                                     else
                                         obtainedDoc = null;
 
-                                } else if(fieldParameters.get(1).equals("last")) {
+                                } else if (fieldParameters.get(1).equals("last")) {
 
                                     // DEBUG //
-                                    System.out.println("Getting " + fieldName + " as an Array, with field " + (obtainedDoc.getArray(fieldName).size()-1) + " as a Document.");
+                                    System.out.println("Getting " + fieldName + " as an Array, with field " + (obtainedDoc.getArray(fieldName).size() - 1) + " as a Document.");
                                     // DEBUG //
 
                                     obtainedDoc = obtainedDoc
                                             .getArray(fieldName)
-                                            .get(obtainedDoc.getArray(fieldName).size()-1)
+                                            .get(obtainedDoc.getArray(fieldName).size() - 1)
                                             .asDocument();
 
-                                } else if( Integer.valueOf(fieldParameters.get(1)) != null ) {
+                                } else if (Integer.valueOf(fieldParameters.get(1)) != null) {
 
                                     // DEBUG //
                                     System.out.println("Getting " + fieldName + " as an Array, with field " + Integer.valueOf(fieldParameters.get(1)) + " as a Document.");
@@ -181,6 +182,12 @@ public class DataExtractor implements Runnable{
                                             .asDocument();
                                 }
 
+                            } else if (fieldParameters.get(0).equals("Field")) {
+                                // DEBUG //
+                                System.out.println("Getting " + fieldName + " as a Field.");
+                                // DEBUG //
+
+                                obtainedField = obtainedDoc.get(fieldName);
                             } else
                                 break;
 
@@ -191,10 +198,15 @@ public class DataExtractor implements Runnable{
                         currField = 0;
                         currData++;
 
-                        if( obtainedDoc != null ) {
+                        if (obtainedDoc != null) {
                             BsonDocument tempDoc = new BsonDocument();
-                            tempDoc.append(fieldNames[fieldNames.length - 1], obtainedDoc);
-                            finalDoc.putAll(tempDoc);
+                            if (obtainedField != null) {
+                                tempDoc.append(fieldNames[fieldNames.length - 1], obtainedField);
+                                finalDoc.putAll(tempDoc);
+                            } else {
+                                tempDoc.append(fieldNames[fieldNames.length - 1], obtainedDoc);
+                                finalDoc.putAll(tempDoc);
+                            }
                         }
                     }
 
@@ -202,7 +214,7 @@ public class DataExtractor implements Runnable{
                     finalDoc.put("id", new BsonInt64(this.id));
                     this.id++;
 
-                    if( session == null ) {
+                    if (session == null) {
                         DatabaseController.getInstance().getCollection("log", BsonDocument.class).insertOne(finalDoc);
                     } else {
                         // Send document to the websocket
@@ -216,22 +228,21 @@ public class DataExtractor implements Runnable{
                 } catch (NullPointerException e) {
                     // System.out.println("This Document is not an Asset");
                     // e.printStackTrace();
-                } catch (BsonInvalidOperationException e){
+                } catch (BsonInvalidOperationException e) {
                     // System.out.println("This Document is not an Asset");
                     // e.printStackTrace();
-                } catch (IndexOutOfBoundsException e){
+                } catch (IndexOutOfBoundsException e) {
                     // System.out.println("This Document is not an Asset");
                     // e.printStackTrace();
                 }
             }
-
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                System.out.println("Don't interrupt me while i am sleeping!");
-                e.printStackTrace();
-            }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            e.printStackTrace();
         }
+    }
     }
 
 }
