@@ -67,7 +67,7 @@ public class DataExtractorSocket {
         }
 
         if( json.get("action").getAsString().equals("stayalive") ){
-            session.getBasicRemote().sendText("{action:'stayalive'}");
+            session.getBasicRemote().sendText("{\"action\":\"stayalive\"}");
         }
     }
 

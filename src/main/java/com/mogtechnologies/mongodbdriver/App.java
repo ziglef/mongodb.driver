@@ -5,9 +5,9 @@ import com.mogtechnologies.mongodbdriver.utils.DataExtractor;
 import com.mogtechnologies.mongodbdriver.utils.DataExtractorBuilder;
 
 public class App {
-    public static void main( String[] args ) {
+    public static void main( String[] args ) {/*
         Thread databaseApiServer = new Thread(new DatabaseApiServer());
-        databaseApiServer.start();
+        databaseApiServer.start();*/
 
         Thread websocketsServer = new Thread(new WebSocketsServer());
         websocketsServer.start();

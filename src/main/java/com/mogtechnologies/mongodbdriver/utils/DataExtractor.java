@@ -26,7 +26,7 @@ public class DataExtractor implements Runnable{
     private MongoCollection<Document> collection;
     private ArrayList<String> dataNames;
     private ArrayList<ArrayList<ArrayList<String>>> dataParameters;
-    private long id;
+    //private long id;
 
     private Session session = null;
 
@@ -43,7 +43,7 @@ public class DataExtractor implements Runnable{
         this.collection = mongoDatabase.getCollection("InfoLog_cap");
         this.dataNames = new ArrayList<String>(dataNames);
         this.dataParameters = new ArrayList<ArrayList<ArrayList<String>>>(dataParameters);
-        this.id = 0;
+        //this.id = 0;
 
         this.session = session;
     }
@@ -60,7 +60,7 @@ public class DataExtractor implements Runnable{
         this.collection = mongoDatabase.getCollection("InfoLog_cap");
         this.dataNames = new ArrayList<String>(dataNames);
         this.dataParameters = new ArrayList<ArrayList<ArrayList<String>>>(dataParameters);
-        this.id = 0;
+        //this.id = 0;
     }
 
     public void run() {
@@ -211,8 +211,8 @@ public class DataExtractor implements Runnable{
                     }
 
                     System.out.println("Final Document: " + finalDoc);
-                    finalDoc.put("id", new BsonInt64(this.id));
-                    this.id++;
+                    /*finalDoc.put("id", new BsonInt64(this.id));
+                    this.id++;*/
 
                     if (session == null) {
                         DatabaseController.getInstance().getCollection("log", BsonDocument.class).insertOne(finalDoc);
