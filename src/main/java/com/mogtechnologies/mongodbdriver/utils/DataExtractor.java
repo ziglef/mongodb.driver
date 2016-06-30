@@ -34,9 +34,9 @@ public class DataExtractor implements Runnable{
     public DataExtractor(ArrayList<String> dataNames,
                          ArrayList<ArrayList<ArrayList<String>>> dataParameters, Session session) {
         // Initialize DB connection
-        String dbUrl = "192.168.1.131";
+        String dbUrl = "192.168.1.173";
         int dbPort = 27017;
-        String dbName = "LogData";
+        String dbName = "CatalogedData";
 
         MongoClient mongoClient = new MongoClient(dbUrl, dbPort);
         this.mongoDatabase = mongoClient.getDatabase( dbName );
@@ -51,9 +51,9 @@ public class DataExtractor implements Runnable{
     public DataExtractor(ArrayList<String> dataNames,
                          ArrayList<ArrayList<ArrayList<String>>> dataParameters) {
         // Initialize DB connection
-        String dbUrl = "192.168.1.131";
+        String dbUrl = "192.168.1.173";
         int dbPort = 27017;
-        String dbName = "LogData";
+        String dbName = "CatalogedData";
 
         MongoClient mongoClient = new MongoClient(dbUrl, dbPort);
         this.mongoDatabase = mongoClient.getDatabase(dbName);

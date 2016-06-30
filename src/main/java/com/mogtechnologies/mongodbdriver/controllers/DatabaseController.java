@@ -34,9 +34,9 @@ public class DatabaseController {
     // Constructor
     private DatabaseController() {
         // Initialize DB connection
-        dbUrl = "192.168.1.131";
+        dbUrl = "192.168.1.173";
         dbPort = 27017;
-        dbName = "mogDB";
+        dbName = "CatalogedData";
         dbUser = "";
         dbPassword = "";
 
